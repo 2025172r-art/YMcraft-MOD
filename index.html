@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>YMcraft 26.2 Modded</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><meta name="theme-color" content="#EF323D">
+<style>html,body{margin:0;height:100%;background:#EF323D;color:#fff;font:15px sans-serif;display:flex;align-items:center;justify-content:center;flex-direction:column}
+#b{width:min(70vw,420px);height:14px;border:2px solid #fff;padding:2px;box-sizing:border-box;margin-top:16px}#f{height:100%;width:0;background:#fff}</style></head>
+<body><div id="t">YMCRAFT を読み込み中...</div><div id="b"><div id="f"></div></div>
+<script>
+(async function(){
+var MAN=[["eag-inline-decoder", [["ym.decoder.0.bin", 208439]]], ["eag-inline-wasm-br", [["ym.wasm-br.0.bin", 18462626]]], ["eag-inline-mesh-wasm-br", [["ym.mesh-wasm-br.0.bin", 3264046]]], ["eag-inline-server-wasm-br", [["ym.server-wasm-br.0.bin", 8901989]]], ["eag-inline-assets", [["ym.assets.0.bin", 7638405]]], ["eag-inline-sounds", [["ym.sounds.0.bin", 20000000], ["ym.sounds.1.bin", 5921893]]]],TOT=64779192,VER="20261111c",CN="ymcraft-"+VER,cache=null,got=0;
+function bar(){document.getElementById("f").style.width=Math.min(100,got/TOT*100*0.92)+"%"}
+try{cache=await caches.open(CN);(await caches.keys()).forEach(function(k){if(k.indexOf("ymcraft-")===0&&k!==CN)caches.delete(k)})}catch(e){cache=null}
+async function get(url){var hit=null;if(cache){try{hit=await cache.match(url)}catch(e){}}
+ if(hit){var b=await hit.blob();got+=b.size;bar();return b}
+ var r=await fetch(url,{cache:"no-cache"});if(!r.ok)throw new Error(url+" "+r.status);
+ var rd=r.body.getReader(),ch=[];for(;;){var x=await rd.read();if(x.done)break;ch.push(x.value);got+=x.value.length;bar()}
+ var bl=new Blob(ch);if(cache){try{await cache.put(url,new Response(bl))}catch(e){}}return bl}
+function b64(bl){return new Promise(function(res,rej){var f=new FileReader();f.onload=function(){var s=f.result;res(s.slice(s.indexOf(",")+1))};f.onerror=rej;f.readAsDataURL(bl)})}
+try{
+ var sk=await (await get("ym.skel")).text();
+ var blobs={};
+ for(var i=0;i<MAN.length;i++){var ps=[];for(var j=0;j<MAN[i][1].length;j++)ps.push(await get(MAN[i][1][j][0]));blobs[MAN[i][0]]=new Blob(ps)}
+ document.getElementById("t").textContent="起動中...";
+ var parts=[],pos=0;
+ for(var i=0;i<MAN.length;i++){var mk="@@"+MAN[i][0]+"@@",k=sk.indexOf(mk,pos);parts.push(sk.slice(pos,k));parts.push(await b64(blobs[MAN[i][0]]));pos=k+mk.length}
+ parts.push(sk.slice(pos));
+ location.replace(URL.createObjectURL(new Blob(parts,{type:"text/html;charset=utf-8"})));
+}catch(e){document.getElementById("t").textContent="読み込みに失敗しました: "+e.message}
+})();
+</script></body></html>
